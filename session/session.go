@@ -61,7 +61,7 @@ type Session interface {
 	Save() error
 }
 
-func Sessions(name string, store Store) echo.MiddlewareFunc {
+func New(name string, store Store) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			request := c.Request().(*standard.Request).Request
