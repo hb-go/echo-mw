@@ -1,4 +1,5 @@
-package bind
+// Based on https://github.com/labstack/echo/blob/v1/binder.go
+package binder
 
 import (
 	"encoding/json"

@@ -1,3 +1,5 @@
+// Based on https://github.com/syntaqx/echo-middleware/
+
 // Session implements middleware for easily using github.com/gorilla/sessions
 // within echo. This package was originally inspired from the
 // https://github.com/ipfans/echo-session package, and modified to provide more
