@@ -4,13 +4,11 @@ package staticbin
 import (
 	"bytes"
 	"log"
-	"net/http"
 	"path"
 	"strings"
 	"time"
 
 	"github.com/labstack/echo"
-	"github.com/labstack/echo/engine/standard"
 )
 
 type Options struct {
@@ -45,15 +43,15 @@ func Static(asset func(string) ([]byte, error), options ...Options) echo.Middlew
 
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			request := c.Request().(*standard.Request).Request
-			if request.Method != "GET" && request.Method != "HEAD" {
+			request := c.Request()
+			method := request.Method()
+			if method != "GET" && method != "HEAD" {
 				// Request is not correct. Go farther.
 				// return echo.NewHTTPError(http.StatusMethodNotAllowed)
 				return next(c)
 			}
 
-			u := request.URL
-			url := u.Path
+			url := request.URL().Path()
 			if !strings.HasPrefix(url, opt.Dir) {
 				// return echo.NewHTTPError(http.StatusUnsupportedMediaType)
 				return next(c)
@@ -78,13 +76,10 @@ func Static(asset func(string) ([]byte, error), options ...Options) echo.Middlew
 				log.Println("[Static] Serving " + url)
 			}
 
-			// http.ServeContent(c.Writer, c.Request(), url, modtime, bytes.NewReader(b))
-			// c.Abort()
+			// response := c.Response()
+			// http.ServeContent(c.Response().Writer(), request, url, modtime, bytes.NewReader(b))
 
-			response := c.Response().(*standard.Response).ResponseWriter
-			http.ServeContent(response, request, url, modtime, bytes.NewReader(b))
-
-			return nil
+			return c.ServeContent(bytes.NewReader(b), file, modtime)
 		}
 	}
 }
