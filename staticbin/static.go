@@ -45,7 +45,7 @@ func Static(asset func(string) ([]byte, error), options ...Options) echo.Middlew
 
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			request := c.Request().(*standard.Request).Request
+			request := c.Request()
 			if request.Method != "GET" && request.Method != "HEAD" {
 				// Request is not correct. Go farther.
 				// return echo.NewHTTPError(http.StatusMethodNotAllowed)
@@ -81,7 +81,7 @@ func Static(asset func(string) ([]byte, error), options ...Options) echo.Middlew
 			// http.ServeContent(c.Writer, c.Request(), url, modtime, bytes.NewReader(b))
 			// c.Abort()
 
-			response := c.Response().(*standard.Response).ResponseWriter
+			response := c.Response().Writer()
 			http.ServeContent(response, request, url, modtime, bytes.NewReader(b))
 
 			return nil

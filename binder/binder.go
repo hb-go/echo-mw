@@ -11,7 +11,6 @@ import (
 	"strings"
 
 	"github.com/labstack/echo"
-	"github.com/labstack/echo/engine/standard"
 )
 
 func New() *binder {
@@ -49,12 +48,12 @@ func (b *binder) Bind(i interface{}, c echo.Context) (err error) {
 			err = echo.NewHTTPError(http.StatusBadRequest, err.Error())
 		}
 	} else if strings.HasPrefix(ct, echo.MIMEApplicationForm) {
-		r := c.Request().(*standard.Request).Request
+		r := c.Request()
 		if err = b.bindForm(r, i); err != nil {
 			err = echo.NewHTTPError(http.StatusBadRequest, err.Error())
 		}
 	} else if strings.HasPrefix(ct, echo.MIMEMultipartForm) {
-		r := c.Request().(*standard.Request).Request
+		r := c.Request()
 		if err = b.bindMultiPartForm(r, i); err != nil {
 			err = echo.NewHTTPError(http.StatusBadRequest, err.Error())
 		}
