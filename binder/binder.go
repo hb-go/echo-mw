@@ -37,14 +37,14 @@ func (b *binder) MaxMemory() int64 {
 
 func (b *binder) Bind(i interface{}, c echo.Context) (err error) {
 	rq := c.Request()
-	ct := rq.Header().Get(echo.HeaderContentType)
+	ct := rq.Header.Get(echo.HeaderContentType)
 	err = echo.ErrUnsupportedMediaType
 	if strings.HasPrefix(ct, echo.MIMEApplicationJSON) {
-		if err = json.NewDecoder(rq.Body()).Decode(i); err != nil {
+		if err = json.NewDecoder(rq.Body).Decode(i); err != nil {
 			err = echo.NewHTTPError(http.StatusBadRequest, err.Error())
 		}
 	} else if strings.HasPrefix(ct, echo.MIMEApplicationXML) {
-		if err = xml.NewDecoder(rq.Body()).Decode(i); err != nil {
+		if err = xml.NewDecoder(rq.Body).Decode(i); err != nil {
 			err = echo.NewHTTPError(http.StatusBadRequest, err.Error())
 		}
 	} else if strings.HasPrefix(ct, echo.MIMEApplicationForm) {

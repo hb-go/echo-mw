@@ -8,7 +8,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/labstack/echo"
-	"github.com/labstack/echo/engine"
 	"io"
 	"net/http"
 	"net/url"
@@ -47,7 +46,7 @@ type responseCache struct {
 
 type cachedWriter struct {
 	io.Writer
-	engine.Response
+	*echo.Response
 	status  int
 	written bool
 	store   CacheStore
@@ -69,7 +68,7 @@ func urlEscape(prefix string, u string) string {
 	return buffer.String()
 }
 
-func newCachedWriter(store CacheStore, expire time.Duration, writer io.Writer, response engine.Response, key string) *cachedWriter {
+func newCachedWriter(store CacheStore, expire time.Duration, writer io.Writer, response *echo.Response, key string) *cachedWriter {
 	return &cachedWriter{writer, response, 0, false, store, expire, key}
 }
 
@@ -93,17 +92,18 @@ func (w *cachedWriter) Write(data []byte) (int, error) {
 		//cache response
 		store := w.store
 		header := w.Response.Header()
-		newHeader := http.Header{}
-		for _, k := range header.Keys() {
-			fmt.Printf("Cache Write Header %s \n", header.Get(k))
-			newHeader.Add(k, header.Get(k))
-		}
+		// newHeader := http.Header{}
+		// @TODO
+		// for _, k := range header.Keys() {
+		// 	fmt.Printf("Cache Write Header %s \n", header.Get(k))
+		// 	newHeader.Add(k, header.Get(k))
+		// }
 
 		fmt.Printf("Cache Write status %s \n", w.status)
 		fmt.Printf("Cache Write data %s \n", data)
 		val := responseCache{
 			200,
-			newHeader,
+			header,
 			data,
 		}
 		err = store.Set(w.key, val, w.expire)
@@ -135,7 +135,7 @@ func SiteCache(store CacheStore, expire time.Duration) echo.MiddlewareFunc {
 		return func(c echo.Context) error {
 			fmt.Printf("Cache Begin")
 			var cache responseCache
-			uri := c.Request().URI()
+			uri := c.Request().RequestURI
 			key := urlEscape(PageCachePrefix, uri)
 			if err := store.Get(key, &cache); err != nil {
 				return next(c)
@@ -165,7 +165,7 @@ func CachePage(store CacheStore, expire time.Duration, handle echo.HandlerFunc) 
 	return func(c echo.Context) error {
 		fmt.Printf("Cache Begin")
 		var cache responseCache
-		uri := c.Request().URI()
+		uri := c.Request().RequestURI
 		key := urlEscape(PageCachePrefix, uri)
 		if err := store.Get(key, &cache); err != nil {
 			fmt.Printf("Cache A %s %s %s \n", err, key, uri)

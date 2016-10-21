@@ -4,6 +4,7 @@ package staticbin
 import (
 	"bytes"
 	"log"
+	"net/http"
 	"path"
 	"strings"
 	"time"
@@ -44,14 +45,14 @@ func Static(asset func(string) ([]byte, error), options ...Options) echo.Middlew
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			request := c.Request()
-			method := request.Method()
+			method := request.Method
 			if method != "GET" && method != "HEAD" {
 				// Request is not correct. Go farther.
 				// return echo.NewHTTPError(http.StatusMethodNotAllowed)
 				return next(c)
 			}
 
-			url := request.URL().Path()
+			url := request.URL.Path
 			if !strings.HasPrefix(url, opt.Dir) {
 				// return echo.NewHTTPError(http.StatusUnsupportedMediaType)
 				return next(c)
