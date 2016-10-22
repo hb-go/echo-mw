@@ -62,7 +62,6 @@ func Static(asset func(string) ([]byte, error), options ...Options) echo.Middlew
 			b, err := asset(file)
 
 			if err != nil {
-				c.Logger().Debugf("Static file nil, url:%v", url)
 				// Try to serve the index file.
 				b, err = asset(path.Join(file, opt.IndexFile))
 
