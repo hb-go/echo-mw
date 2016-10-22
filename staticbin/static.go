@@ -3,8 +3,6 @@ package staticbin
 
 import (
 	"bytes"
-	"log"
-	"net/http"
 	"path"
 	"strings"
 	"time"
@@ -64,6 +62,7 @@ func Static(asset func(string) ([]byte, error), options ...Options) echo.Middlew
 			b, err := asset(file)
 
 			if err != nil {
+				c.Logger().Debugf("Static file nil, url:%v", url)
 				// Try to serve the index file.
 				b, err = asset(path.Join(file, opt.IndexFile))
 
@@ -74,19 +73,13 @@ func Static(asset func(string) ([]byte, error), options ...Options) echo.Middlew
 			}
 
 			if !opt.SkipLogging {
-				log.Println("[Static] Serving " + url)
+				c.Logger().Debugf("Static file, url:%v", url)
 			}
 
-			// response := c.Response()
+			return c.ServeContent(bytes.NewReader(b), file, modtime)
+
 			// http.ServeContent(c.Response().Writer(), request, url, modtime, bytes.NewReader(b))
-
-			// return c.ServeContent(bytes.NewReader(b), file, modtime)
-
-			response := c.Response().Writer()
-			http.ServeContent(response, request, url, modtime, bytes.NewReader(b))
-
-			return nil
-
+			// return nil
 		}
 	}
 }
