@@ -12,6 +12,7 @@ import (
 
 // RenderOptions is used to configure the renderer.
 type RenderOptions struct {
+	TmplLoader  pongo2.TemplateLoader
 	TemplateDir string
 	ContentType string
 	Debug       bool
@@ -42,13 +43,23 @@ func Default() Pongo2Render {
 
 func (p Pongo2Render) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
 	var template *pongo2.Template
-	filename := path.Join(p.Options.TemplateDir, name)
+	var tmplSet *pongo2.TemplateSet
+	var filename string
+
+	if p.Options.TmplLoader != nil {
+		tmplSet = pongo2.NewSet("Tmpl Loader", p.Options.TmplLoader)
+		filename = name
+	} else {
+		// 默认文件加载
+		tmplSet = pongo2.DefaultSet
+		filename = path.Join(p.Options.TemplateDir, name)
+	}
 
 	// always read template files from disk if in debug mode, use cache otherwise.
 	if p.Options.Debug {
-		template = pongo2.Must(pongo2.FromFile(filename))
+		template = pongo2.Must(tmplSet.FromFile(filename))
 	} else {
-		template = pongo2.Must(pongo2.FromCache(filename))
+		template = pongo2.Must(tmplSet.FromCache(filename))
 	}
 
 	context, exist := data.(map[string]interface{})
