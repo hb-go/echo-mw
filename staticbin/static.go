@@ -3,6 +3,7 @@ package staticbin
 
 import (
 	"bytes"
+	"net/http"
 	"path"
 	"strings"
 	"time"
@@ -75,10 +76,11 @@ func Static(asset func(string) ([]byte, error), options ...Options) echo.Middlew
 				c.Logger().Debugf("Static file, url:%v", url)
 			}
 
-			return c.ServeContent(bytes.NewReader(b), file, modtime)
+			//缺少contentType MIME类型有BUG
+			//return c.Blob(200, "", b)
 
-			// http.ServeContent(c.Response().Writer(), request, url, modtime, bytes.NewReader(b))
-			// return nil
+			http.ServeContent(c.Response(), c.Request(), url, modtime, bytes.NewReader(b))
+			return nil
 		}
 	}
 }
