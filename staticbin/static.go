@@ -77,7 +77,7 @@ func Static(asset func(string) ([]byte, error), options ...Options) echo.Middlew
 			}
 
 			//缺少contentType MIME类型有BUG
-			//return c.Blob(200, "", b)
+			// return c.Blob(200, "", b)
 
 			http.ServeContent(c.Response(), c.Request(), url, modtime, bytes.NewReader(b))
 			return nil

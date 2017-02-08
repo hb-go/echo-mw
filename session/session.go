@@ -66,7 +66,7 @@ func New(name string, store Store) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			request := c.Request()
-			response := c.Response().Writer()
+			response := c.Response()
 
 			s := &session{
 				name,

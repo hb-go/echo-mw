@@ -151,7 +151,7 @@ func SiteCache(store CacheStore, expire time.Duration) echo.MiddlewareFunc {
 					}
 				}
 
-				c.Response().Writer().Write(cache.data)
+				c.Response().Write(cache.data)
 				return nil
 			}
 		}
@@ -170,8 +170,8 @@ func CachePage(store CacheStore, expire time.Duration, handle echo.HandlerFunc) 
 		if err := store.Get(key, &cache); err != nil {
 			fmt.Printf("Cache A %s %s %s \n", err, key, uri)
 			// replace writer
-			writer := newCachedWriter(store, expire, c.Response().Writer(), c.Response(), key)
-			c.Response().SetWriter(writer)
+			writer := newCachedWriter(store, expire, c.Response().Writer, c.Response(), key)
+			c.Response().Writer = writer
 			return handle(c)
 		} else {
 			fmt.Printf("Cache B \n")
@@ -186,7 +186,7 @@ func CachePage(store CacheStore, expire time.Duration, handle echo.HandlerFunc) 
 				}
 			}
 
-			c.Response().Writer().Write(cache.data)
+			c.Response().Write(cache.data)
 
 			return nil
 		}
